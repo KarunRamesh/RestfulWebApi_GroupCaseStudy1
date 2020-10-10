@@ -16,27 +16,27 @@ public class UserEntity {
     private Integer id;
     @Column(name = "UUID", length = 20)
     private String uuid;
-    @Column(name = "FIRST_NAME", length = 40)
+    @Column(name = "firstname", length = 40)
     private String firstName;
-    @Column(name = "LAST_NAME", length = 40)
+    @Column(name = "lastname", length = 40)
     private String lastName;
-    @Column(name = "USER_NAME", length = 40)
+    @Column(name = "username", length = 40)
     private String userName;
     @Column(name = "EMAIL", length = 30)
-    private String email;
+    private String emailAddress;
     @Column(name = "PASSWORD", length = 40)
     private String password;
     @Column(name = "SALT", length = 40)
     private String salt;
     @Column(name = "COUNTRY", length = 40)
     private String country;
-    @Column(name = "ABOUT_ME", length = 40)
+    @Column(name = "aboutme", length = 40)
     private String aboutMe;
     @Column(name = "DOB", length = 40)
     private String dob;
     @Column(name = "ROLE", length = 2)
     private String role;
-    @Column(name = "CONTACT_NUMBER", length = 40)
+    @Column(name = "contactnumber", length = 40)
     private String contactNumber;
 
     public Integer getId() {
@@ -79,12 +79,12 @@ public class UserEntity {
         this.userName = userName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 
     public String getPassword() {
