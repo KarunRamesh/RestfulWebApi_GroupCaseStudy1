@@ -9,6 +9,10 @@ import javax.persistence.*;
 
 @Entity
 @Table(name="USERS",schema ="quora")
+@NamedQueries({
+        @NamedQuery(name = "userByEmail", query = "select u from UserEntity u where u.emailAddress = :emailAddress"),
+        @NamedQuery(name="userByUserName",query="select u from UserEntity u where u.userName=:userName")
+})
 public class UserEntity {
     @Id
     @Column(name = "ID")
