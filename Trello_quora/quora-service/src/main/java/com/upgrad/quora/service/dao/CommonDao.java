@@ -18,14 +18,16 @@ public class CommonDao {
             return entityManager.createNamedQuery("userAuthTokenByAccessToken",
                     UserAuthTokenEntity.class).setParameter("accessToken", accessToken).getSingleResult();
         } catch (NoResultException nre){
+            System.out.println("Error");
             return null;
         }
     }
 
-    public UserEntity getUser(String userUuid) {
+    public UserEntity getUser(String uuid) {
         try {
+            System.out.println("user id value is"+uuid);
             return entityManager.createNamedQuery("userByUuid",
-                    UserEntity.class).setParameter("userUuid", userUuid).getSingleResult();
+                    UserEntity.class).setParameter("uuid", uuid).getSingleResult();
         } catch (NoResultException nre){
             return null;
         }

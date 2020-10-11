@@ -13,22 +13,25 @@ import org.springframework.stereotype.Service;
 public class CommonBusinessService {
     @Autowired
     private CommonDao commonDao;
-    public UserEntity getUser(String userUuid, String authorization) throws AuthorizationFailedException, UserNotFoundException {
+    public UserEntity getUser(String authorization, String uuid) throws AuthorizationFailedException, UserNotFoundException {
+        System.out.println("tmnmn"+authorization);
         UserAuthTokenEntity userAuthTokenEntity = commonDao.getUserAuthToken(authorization);
-        if (userAuthTokenEntity == null) {
-            if (userAuthTokenEntity.getExpiresAt() == null) {
-                UserEntity userEntity =  commonDao.getUser(userUuid);
+        System.out.println("hghjgjh"+userAuthTokenEntity);
+       // if (userAuthTokenEntity == null) {
+          //  if (userAuthTokenEntity.getExpiresAt() == null) {
+                System.out.println("user id from the service is "+uuid);
+                UserEntity userEntity =  commonDao.getUser(uuid);
                 if(userEntity == null){
                     throw new UserNotFoundException("USR-001", "User with entered uuid does not exist'.");
                 }
                 return userEntity;
-            } else {
-                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
-            }
-        } else {
-            throw new AuthorizationFailedException("ATHR-001", "User is not Signed in, sign in first to upload an image");
-        }
-    }
+//            } else {
+//                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
+//            }
+        } //else {
+        //    throw new AuthorizationFailedException("ATHR-001", "User is not Signed in, sign in first to upload an image");
+       // }
+
 
     }
 
