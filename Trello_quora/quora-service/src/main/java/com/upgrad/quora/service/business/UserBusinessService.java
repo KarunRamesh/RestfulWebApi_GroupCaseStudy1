@@ -51,6 +51,8 @@ public class UserBusinessService {
             userAuthToken.setUser(userEntity);
             final ZonedDateTime now = ZonedDateTime.now();
             final ZonedDateTime expiresAt = now.plusHours(8);
+            System.out.println("user id is"+userEntity.getUuid());
+            userAuthToken.setUuid(userEntity.getUuid());
             userAuthToken.setAccessToken(jwtTokenProvider.generateToken(userEntity.getUuid(), now, expiresAt));
             userAuthToken.setLoginAt(now);
             userAuthToken.setExpiresAt(expiresAt);

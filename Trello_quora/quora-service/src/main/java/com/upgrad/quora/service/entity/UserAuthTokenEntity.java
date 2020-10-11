@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "USER_AUTH_TOKENS", schema = "quora")
+@Table(name = "USER_AUTH", schema = "quora")
 @NamedQueries({
         @NamedQuery(name = "userAuthTokenByAccessToken", query = "select ut from UserAuthTokenEntity ut where ut.accessToken =:accessToken")
 })
@@ -20,6 +20,16 @@ public class UserAuthTokenEntity implements Serializable {
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(name="uuid")
+    private String uuid;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")
