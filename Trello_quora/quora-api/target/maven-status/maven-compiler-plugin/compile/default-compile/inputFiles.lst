@@ -1,4 +1,5 @@
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\src\main\java\com\upgrad\quora\api\config\SwaggerConfiguration.java
+F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\src\main\java\com\upgrad\quora\api\controller\CommonController.java
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\target\generated-sources\.\io\swagger\configuration\HomeController.java
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\src\main\java\com\upgrad\quora\api\exception\RestExceptionHandler.java
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\target\generated-sources\.\com\upgrad\quora\api\model\AnswerRequest.java
@@ -6,6 +7,7 @@ F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\targ
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\target\generated-sources\.\com\upgrad\quora\api\model\ErrorResponse.java
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\target\generated-sources\.\io\swagger\api\ApiException.java
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\target\generated-sources\.\com\upgrad\quora\api\model\AnswerResponse.java
+F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\src\main\java\com\upgrad\quora\api\controller\AdminController.java
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\target\generated-sources\.\com\upgrad\quora\api\model\QuestionDeleteResponse.java
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\target\generated-sources\.\com\upgrad\quora\api\model\QuestionResponse.java
 F:\UpGrade\Assignment6\RestfulWebApi_GroupCaseStudy1\Trello_quora\quora-api\target\generated-sources\.\io\swagger\configuration\SwaggerDocumentationConfig.java
