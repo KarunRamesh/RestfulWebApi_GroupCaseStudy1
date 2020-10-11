@@ -65,5 +65,5 @@ public class UserController {
         headers.add("access-token", userAuthToken.getAccessToken());
         return new ResponseEntity<SigninResponse>(authorizedUserResponse,headers, HttpStatus.OK);
     }
-s
+
 }
