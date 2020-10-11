@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     @Autowired
     private AdminBusinessService adminBusinessService;
-    @RequestMapping(method = RequestMethod.DELETE,path="/admin/user/{userId}",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE,path="/admin/user/{id}",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UserDetailsResponse> getUser(@RequestHeader("authorization") final String authorization, @PathVariable("id") final String userId) throws AuthorizationFailedException, UserNotFoundException {
         final UserEntity userEntity =  adminBusinessService.getUser(userId,authorization);
         UserDetailsResponse userDetailsResponse;

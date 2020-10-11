@@ -33,12 +33,14 @@ public class CommonDao {
         }
     }
 
-    public UserEntity deleteUser(String uuid) {
+    public boolean deleteUser(String uuid) {
         try {
-            return entityManager.createNamedQuery("deleteUser",
-                    UserEntity.class).setParameter("uuid", uuid).getSingleResult();
+            entityManager.createNamedQuery("deleteUser").setParameter("uuid", uuid).executeUpdate();
+            entityManager.flush();
+            //entityManager.remove(uuid);
+            return true;
         } catch (NoResultException nre){
-            return null;
+            return false;
         }
     }
 }
