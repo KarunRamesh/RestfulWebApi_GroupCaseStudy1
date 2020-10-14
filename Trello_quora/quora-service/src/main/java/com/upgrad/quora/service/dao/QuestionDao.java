@@ -32,4 +32,23 @@ public class QuestionDao {
         }
     }
 
+    public QuestionEntity editQuestionContent(QuestionEntity questionEntity) {
+        try{
+            entityManager.merge(questionEntity);
+            return questionEntity;
+        }catch(Exception e){
+            throw e;
+        }
+
+    }
+
+    public QuestionEntity getQuestionUser(String uuid) {
+        try {
+            System.out.println("user id value is"+uuid);
+            return entityManager.createNamedQuery("questionUserByUuid",
+                    QuestionEntity.class).setParameter("uuid", uuid).getSingleResult();
+        } catch (NoResultException nre){
+            return null;
+        }
+    }
 }

@@ -11,6 +11,7 @@ import com.upgrad.quora.service.entity.UserAuthTokenEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
+import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,7 +31,7 @@ public class QuestionController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/question/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequestRequest) throws AuthenticationFailedException {
-        try {
+
             byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
             String decodedText = new String(decode);
             String[] decodedArray = decodedText.split(":");
@@ -42,7 +43,7 @@ public class QuestionController {
             }
             final QuestionEntity userEntity = new QuestionEntity();
 
-            userEntity.setUuid(UUID.randomUUID().toString());
+            userEntity.setUuid(user.getUuid());
             userEntity.setContent(questionRequestRequest.getContent());
             userEntity.setUser(user);
             userEntity.setDate(now);
@@ -51,11 +52,7 @@ public class QuestionController {
             QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Created");
             return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
 
-        } catch (Exception e) {
-            QuestionResponse userResponse = new QuestionResponse().status("Internal Server Error");
 
-            return new ResponseEntity<QuestionResponse>(userResponse,HttpStatus.BAD_REQUEST);
-        }
     }
 
 
@@ -70,6 +67,15 @@ public class QuestionController {
         }
         QuestionDetailsResponse userResponse = new QuestionDetailsResponse().id(userAuthToken.getUuid()).content(lstOfQuestionContent);
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
+    }
+    @RequestMapping(method=RequestMethod.PUT,path="/question/edit/{id}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionResponse> editQuestionContent(@RequestHeader("authorization") final String authorization,@PathVariable("id") final String id) throws AuthorizationFailedException, InvalidQuestionException {
+
+            final QuestionEntity createdUserEntity = questionBusinessService.editQuestionContent(authorization,id);
+
+            QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Created");
+            return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+
     }
 }
 
