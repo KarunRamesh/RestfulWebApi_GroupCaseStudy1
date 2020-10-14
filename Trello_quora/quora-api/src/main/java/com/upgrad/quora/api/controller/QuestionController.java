@@ -1,6 +1,7 @@
 package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.QuestionRequest;
+import com.upgrad.quora.api.model.QuestionResponse;
 import com.upgrad.quora.api.model.SignupUserResponse;
 import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.business.UserBusinessService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -30,23 +32,34 @@ public class QuestionController {
     private UserBusinessService userBusinessService;
 
     @RequestMapping(method = RequestMethod.POST, path = "/question/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SignupUserResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequestRequest) throws AuthenticationFailedException {
+    public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequestRequest) throws AuthenticationFailedException {
+        try {
+            byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
+            String decodedText = new String(decode);
+            String[] decodedArray = decodedText.split(":");
+            UserAuthTokenEntity userAuthToken = userBusinessService.authenticate(decodedArray[0], decodedArray[1]);
+            UserEntity user = userAuthToken.getUser();
+            final ZonedDateTime now = ZonedDateTime.now();
+            if (Objects.isNull(user)) {
+                throw new AuthenticationFailedException("ATHR-001", "User has not signed in");
+            }
+            final QuestionEntity userEntity = new QuestionEntity();
 
-        byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
-        String decodedText = new String(decode);
-        String[] decodedArray = decodedText.split(":");
-        UserAuthTokenEntity userAuthToken = userBusinessService.authenticate(decodedArray[0],decodedArray[1]);
-        UserEntity user = userAuthToken.getUser();
-        final ZonedDateTime now = ZonedDateTime.now();
+            userEntity.setUuid(UUID.randomUUID().toString());
+            userEntity.setContent(questionRequestRequest.getContent());
+            userEntity.setUser(user);
+            userEntity.setDate(now);
+            final QuestionEntity createdUserEntity = questionBusinessService.createQuestion(userEntity);
 
-        final QuestionEntity userEntity = new QuestionEntity();
+            QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Created");
+            return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
 
-        userEntity.setUuid(UUID.randomUUID().toString());
-        userEntity.setContent(questionRequestRequest.getContent());
-        userEntity.setUser(user);
-        userEntity.setDate(now);
-        final QuestionEntity createdUserEntity = questionBusinessService.createQuestion(userEntity);
-        SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
-        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+        } catch (Exception e) {
+            QuestionResponse userResponse = new QuestionResponse().status("Internal Server Error");
+
+            return new ResponseEntity<QuestionResponse>(userResponse,HttpStatus.BAD_REQUEST);
+        }
     }
+
 }
+

@@ -14,7 +14,11 @@ public class QuestionDao {
 
 
     public QuestionEntity createQuestion(QuestionEntity userEntity) {
-        entityManager.persist(userEntity);
-        return userEntity;
+     try{
+         entityManager.persist(userEntity);
+         return userEntity;
+     }catch(Exception e){throw e;
+     }
+
     }
 }
