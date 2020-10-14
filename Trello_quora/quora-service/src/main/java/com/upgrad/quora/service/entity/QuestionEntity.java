@@ -13,7 +13,8 @@ import java.util.Objects;
 @Table(name="QUESTION",schema ="quora")
 @NamedQueries(
         {
-                @NamedQuery(name="getAllQuestionsByAllUsers", query="select q from QuestionEntity q")
+                @NamedQuery(name="getAllQuestionsByAllUsers", query="select q from QuestionEntity q"),
+                @NamedQuery(name="getAllQuestionsByUser", query="select q from QuestionEntity q where q.uuid = :userId")
         }
 )
 

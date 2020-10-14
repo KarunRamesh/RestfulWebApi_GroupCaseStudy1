@@ -41,4 +41,14 @@ public class QuestionBusinessService {
         return dao.getAllQuestions();
     }
 
+    public List<QuestionEntity> getAllQuestionsByUser(UserAuthTokenEntity userAuthTokenEntity, String userId) throws AuthorizationFailedException {
+        ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
+        ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
+        ZonedDateTime currentTime = ZonedDateTime.now();
+        if(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)){
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions");
+        }
+        return dao.getAllQuestionsByUser(userId);
+    }
+
 }
