@@ -11,6 +11,14 @@ import java.util.Objects;
 
 @Entity
 @Table(name="QUESTION",schema ="quora")
+@NamedQueries(
+        {
+                @NamedQuery(name="getAllQuestionsByAllUsers", query="select q from QuestionEntity q")
+        }
+)
+
+
+
 public class QuestionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

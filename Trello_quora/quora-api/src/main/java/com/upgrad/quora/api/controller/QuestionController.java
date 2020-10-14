@@ -1,6 +1,8 @@
 package com.upgrad.quora.api.controller;
 
+import com.upgrad.quora.api.model.QuestionDetailsResponse;
 import com.upgrad.quora.api.model.QuestionRequest;
+import com.upgrad.quora.api.model.QuestionResponse;
 import com.upgrad.quora.api.model.SignupUserResponse;
 import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.business.UserBusinessService;
@@ -8,17 +10,17 @@ import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthTokenEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
+import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -39,14 +41,27 @@ public class QuestionController {
         UserEntity user = userAuthToken.getUser();
         final ZonedDateTime now = ZonedDateTime.now();
 
-        final QuestionEntity userEntity = new QuestionEntity();
+        final QuestionEntity questionEntity = new QuestionEntity();
 
-        userEntity.setUuid(UUID.randomUUID().toString());
-        userEntity.setContent(questionRequestRequest.getContent());
-        userEntity.setUser(user);
-        userEntity.setDate(now);
-        final QuestionEntity createdUserEntity = questionBusinessService.createQuestion(userEntity);
-        SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
+        questionEntity.setUuid(UUID.randomUUID().toString());
+        questionEntity.setContent(questionRequestRequest.getContent());
+        questionEntity.setUser(user);
+        questionEntity.setDate(now);
+        final QuestionEntity createdUserEntity = questionBusinessService.createQuestion(questionEntity);
+        SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("QUESTION CREATED");
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/question/{all}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionDetailsResponse> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        UserAuthTokenEntity userAuthToken = userBusinessService.authorize(authorization);
+        final List<QuestionEntity> questionsList = questionBusinessService.getAllQuestions(userAuthToken);
+        String lstOfQuestionContent = questionsList.get(0).getContent() + "\n";
+        for(int idx = 1; idx < questionsList.size(); idx++)
+        {
+            lstOfQuestionContent = lstOfQuestionContent + questionsList.get(idx).getContent() + "\n";
+        }
+        QuestionDetailsResponse userResponse = new QuestionDetailsResponse().id(userAuthToken.getUuid()).content(lstOfQuestionContent);
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 }

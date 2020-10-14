@@ -31,7 +31,5 @@ public class CommonBusinessService {
         } //else {
         //    throw new AuthorizationFailedException("ATHR-001", "User is not Signed in, sign in first to upload an image");
        // }
-
-
     }
 
