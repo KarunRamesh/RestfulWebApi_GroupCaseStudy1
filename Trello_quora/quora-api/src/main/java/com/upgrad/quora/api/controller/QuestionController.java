@@ -12,6 +12,8 @@ import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,9 +31,11 @@ public class QuestionController {
     @Autowired
     private UserBusinessService userBusinessService;
 
+    Logger logger = LoggerFactory.getLogger(QuestionController.class);
+
     @RequestMapping(method = RequestMethod.POST, path = "/question/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequestRequest) throws AuthenticationFailedException {
-
+            logger.info("create question api called");
             byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
             String decodedText = new String(decode);
             String[] decodedArray = decodedText.split(":");
@@ -39,6 +43,7 @@ public class QuestionController {
             UserEntity user = userAuthToken.getUser();
             final ZonedDateTime now = ZonedDateTime.now();
             if (Objects.isNull(user)) {
+                logger.error("Exception occured in create question api"+"User has not signed in");
                 throw new AuthenticationFailedException("ATHR-001", "User has not signed in");
             }
             final QuestionEntity userEntity = new QuestionEntity();
@@ -50,7 +55,15 @@ public class QuestionController {
             final QuestionEntity createdUserEntity = questionBusinessService.createQuestion(userEntity);
 
             QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Created");
-            return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+           if(userResponse!=null) {
+               logger.info("Question Created Sucessfully");
+               return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+           }
+           else {
+               logger.error("Error occured while crating the question");
+               QuestionResponse userRes=new QuestionResponse().status("Internal Server Error");
+               return new ResponseEntity<>(userResponse,HttpStatus.BAD_REQUEST);
+           }
 
 
     }
@@ -94,12 +107,18 @@ public class QuestionController {
     }
     @RequestMapping(method=RequestMethod.PUT,path="/question/edit/{id}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> editQuestionContent(@RequestHeader("authorization") final String authorization,@PathVariable("id") final String id) throws AuthorizationFailedException, InvalidQuestionException {
-
+         logger.info("edit question api called");
             final QuestionEntity createdUserEntity = questionBusinessService.editQuestionContent(authorization,id);
-
-            QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Created");
+            QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Modified Successfully");
+        if(userResponse!=null) {
+            logger.info("Question Modified Sucessfully");
             return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
-
+        }
+        else {
+            logger.error("Error occured while editing  the question");
+            QuestionResponse userRes=new QuestionResponse().status("Internal Server Error");
+            return new ResponseEntity<>(userResponse,HttpStatus.BAD_REQUEST);
+        }
     }
 }
 

@@ -1,7 +1,10 @@
 package com.upgrad.quora.service.dao;
 
+import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -14,9 +17,12 @@ public class QuestionDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    Logger logger = LoggerFactory.getLogger(QuestionDao.class);
 
     public QuestionEntity createQuestion(QuestionEntity userEntity) {
-     try{
+        logger.info("createQuestion method in QuestionDao called");
+
+        try{
          entityManager.persist(userEntity);
          return userEntity;
      }catch(Exception e){throw e;
@@ -33,6 +39,7 @@ public class QuestionDao {
     }
 
     public QuestionEntity editQuestionContent(QuestionEntity questionEntity) {
+        logger.info("editQuestionContent method in QuestionDao called");
         try{
             entityManager.merge(questionEntity);
             return questionEntity;
