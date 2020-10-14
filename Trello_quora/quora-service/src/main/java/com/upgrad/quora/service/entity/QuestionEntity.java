@@ -15,7 +15,7 @@ import java.util.Objects;
         {
                 @NamedQuery(name="getAllQuestionsByAllUsers", query="select q from QuestionEntity q"),
                 @NamedQuery(name = "questionUserByUuid", query = "select u from QuestionEntity u where u.uuid = :uuid"),
-
+                @NamedQuery(name="getAllQuestionsByUser", query="select q from QuestionEntity q where q.uuid = :userId")
         }
 )
 

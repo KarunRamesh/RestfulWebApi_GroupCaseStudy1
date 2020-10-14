@@ -58,15 +58,39 @@ public class QuestionController {
 
     @RequestMapping(method = RequestMethod.GET, path = "/question/{all}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionDetailsResponse> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        UserAuthTokenEntity userAuthToken = userBusinessService.authorize(authorization);
-        final List<QuestionEntity> questionsList = questionBusinessService.getAllQuestions(userAuthToken);
-        String lstOfQuestionContent = questionsList.get(0).getContent() + "\n";
-        for(int idx = 1; idx < questionsList.size(); idx++)
-        {
-            lstOfQuestionContent = lstOfQuestionContent + questionsList.get(idx).getContent() + "\n";
+        try {
+            UserAuthTokenEntity userAuthToken = userBusinessService.authorize(authorization);
+            final List<QuestionEntity> questionsList = questionBusinessService.getAllQuestions(userAuthToken);
+            String lstOfQuestionContent = questionsList.get(0).getContent() + "\n";
+            for (int idx = 1; idx < questionsList.size(); idx++) {
+                lstOfQuestionContent = lstOfQuestionContent + questionsList.get(idx).getContent() + "\n";
+            }
+            QuestionDetailsResponse questionResponse = new QuestionDetailsResponse().id(userAuthToken.getUuid()).content(lstOfQuestionContent);
+            return new ResponseEntity<>(questionResponse, HttpStatus.OK);
         }
-        QuestionDetailsResponse userResponse = new QuestionDetailsResponse().id(userAuthToken.getUuid()).content(lstOfQuestionContent);
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        catch (Exception e) {
+            QuestionDetailsResponse questionResponse = new QuestionDetailsResponse().content("Internal Server Error");
+
+            return new ResponseEntity<QuestionDetailsResponse>(questionResponse,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionDetailsResponse> getAllQuestionsByUser(@PathVariable("userId") final String userId, @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        try {
+            UserAuthTokenEntity userAuthToken = userBusinessService.authorize(authorization);
+            final List<QuestionEntity> questionsList = questionBusinessService.getAllQuestionsByUser(userAuthToken, userId);
+            String lstOfQuestionContent = questionsList.get(0).getContent() + "\n";
+            for (int idx = 1; idx < questionsList.size(); idx++) {
+                lstOfQuestionContent = lstOfQuestionContent + questionsList.get(idx).getContent() + "\n";
+            }
+            QuestionDetailsResponse userResponse = new QuestionDetailsResponse().id(userAuthToken.getUuid()).content(lstOfQuestionContent);
+            return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        }
+        catch (Exception e) {
+            QuestionDetailsResponse questionResponse = new QuestionDetailsResponse().content("Internal Server Error");
+            return new ResponseEntity<QuestionDetailsResponse>(questionResponse,HttpStatus.BAD_REQUEST);
+        }
     }
     @RequestMapping(method=RequestMethod.PUT,path="/question/edit/{id}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> editQuestionContent(@RequestHeader("authorization") final String authorization,@PathVariable("id") final String id) throws AuthorizationFailedException, InvalidQuestionException {

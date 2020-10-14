@@ -61,12 +61,20 @@ public class QuestionBusinessService {
                     }
                 } else {
                     throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist'.");
-
                 }
             } else {
                 throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
             }
         }
-
     }
+    public List<QuestionEntity> getAllQuestionsByUser(UserAuthTokenEntity userAuthTokenEntity, String userId) throws AuthorizationFailedException {
+        ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
+        ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
+        ZonedDateTime currentTime = ZonedDateTime.now();
+        if(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)){
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions");
+        }
+        return dao.getAllQuestionsByUser(userId);
+    }
+
 }
