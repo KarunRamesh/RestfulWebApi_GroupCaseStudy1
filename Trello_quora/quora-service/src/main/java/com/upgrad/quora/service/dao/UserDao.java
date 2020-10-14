@@ -25,9 +25,18 @@ public class UserDao {
             return null;
         }
     }
+
     public UserEntity getUserByUserName(String userName){
         try{
             return entityManager.createNamedQuery("userByUserName",UserEntity.class).setParameter("userName",userName).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public UserAuthTokenEntity getUserAuthTokenEntityByToken(String userName){
+        try{
+            return entityManager.createNamedQuery("userAuthTokenByAccessToken",UserAuthTokenEntity.class).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
