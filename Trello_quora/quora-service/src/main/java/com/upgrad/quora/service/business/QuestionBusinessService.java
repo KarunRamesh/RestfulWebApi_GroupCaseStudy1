@@ -45,7 +45,7 @@ public class QuestionBusinessService {
         return dao.getAllQuestions();
     }
     @Transactional(propagation = Propagation.REQUIRED)
-    public QuestionEntity editQuestionContent(String authorization, String uuid) throws AuthorizationFailedException, InvalidQuestionException {
+    public QuestionEntity editQuestionContent(String authorization, Integer uuid) throws AuthorizationFailedException, InvalidQuestionException {
         logger.info("editQuestionContent method in QuestionBusinessService called");
 
         UserAuthTokenEntity userAuthTokenEntity = userBusinessService.authorize(authorization);
@@ -89,5 +89,42 @@ public class QuestionBusinessService {
         }
         return dao.getAllQuestionsByUser(userId);
     }
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity deleteQuestion(String authorization, Integer id) throws AuthorizationFailedException, InvalidQuestionException {
 
+        logger.info("deleteQuestion method in QuestionBusinessService called");
+
+        UserAuthTokenEntity userAuthTokenEntity = userBusinessService.authorize(authorization);
+        if(userAuthTokenEntity==null){
+            logger.error("Exception occured in deleteQuestion method"+"user has not signed in");
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }else {
+            logger.info("else called");
+            ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
+            ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
+            ZonedDateTime currentTime = ZonedDateTime.now();
+            if ((logOutTime==null || expiryTime==null)||(!(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)))) {
+                logger.info("inside signed condition passed");
+                QuestionEntity questionEntity = dao.getQuestionUser(id);
+                if (!Objects.isNull(questionEntity)) {
+                    logger.info("Question id found in database");
+                    if (userAuthTokenEntity.getUser().getId() == questionEntity.getUser().getId()) {
+                        logger.info("given question is belongs to the logged user");
+                         dao.deleteQuestion(id);
+                         return questionEntity;
+                    } else {
+                        logger.info("Exception occured in QuestionBusinessService class"+"Only the question owner can edit the question");
+                        throw new AuthorizationFailedException("ATHR-003", "Only the question owner can edit the question");
+                    }
+                } else {
+                    logger.info("Exception occured in QuestionBusinessService class"+"Entered question uuid does not exist");
+                    throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist'.");
+                }
+            } else {
+                logger.info("Exception occured in QuestionBusinessService class"+"User is signed out.Sign in first to get user details");
+
+                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
+            }
+        }
+    }
 }

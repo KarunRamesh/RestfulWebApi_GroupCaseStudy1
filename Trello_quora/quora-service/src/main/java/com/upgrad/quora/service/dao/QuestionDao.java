@@ -49,11 +49,10 @@ public class QuestionDao {
 
     }
 
-    public QuestionEntity getQuestionUser(String uuid) {
+    public QuestionEntity getQuestionUser(Integer id) {
         try {
-            System.out.println("user id value is"+uuid);
             return entityManager.createNamedQuery("questionUserByUuid",
-                    QuestionEntity.class).setParameter("uuid", uuid).getSingleResult();
+                    QuestionEntity.class).setParameter("id", id).getSingleResult();
         } catch (NoResultException nre){
             return null;
         }
@@ -66,4 +65,13 @@ public class QuestionDao {
         }
     }
 
+    public boolean deleteQuestion(Integer id) {
+        try {
+            entityManager.createNamedQuery("deleteQuestion").setParameter("id", id).executeUpdate();
+            entityManager.flush();
+            return true;
+        } catch (NoResultException nre){
+            return false;
+        }
+    }
 }

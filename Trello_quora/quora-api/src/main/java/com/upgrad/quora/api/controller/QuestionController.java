@@ -34,18 +34,21 @@ public class QuestionController {
     Logger logger = LoggerFactory.getLogger(QuestionController.class);
 
     @RequestMapping(method = RequestMethod.POST, path = "/question/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequestRequest) throws AuthenticationFailedException {
+    public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequestRequest) throws AuthenticationFailedException, AuthorizationFailedException {
             logger.info("create question api called");
-            byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
-            String decodedText = new String(decode);
-            String[] decodedArray = decodedText.split(":");
-            UserAuthTokenEntity userAuthToken = userBusinessService.authenticate(decodedArray[0], decodedArray[1]);
-            UserEntity user = userAuthToken.getUser();
-            final ZonedDateTime now = ZonedDateTime.now();
-            if (Objects.isNull(user)) {
-                logger.error("Exception occured in create question api"+"User has not signed in");
-                throw new AuthenticationFailedException("ATHR-001", "User has not signed in");
-            }
+           UserAuthTokenEntity userAuthToken=userBusinessService.authorize(authorization);
+           UserEntity user = userAuthToken.getUser();
+          final ZonedDateTime now = ZonedDateTime.now();
+//            byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
+//            String decodedText = new String(decode);
+//            String[] decodedArray = decodedText.split(":");
+//            UserAuthTokenEntity userAuthToken = userBusinessService.authenticate(decodedArray[0], decodedArray[1]);
+//            UserEntity user = userAuthToken.getUser();
+//            final ZonedDateTime now = ZonedDateTime.now();
+//            if (Objects.isNull(user)) {
+//                logger.error("Exception occured in create question api"+"User has not signed in");
+//                throw new AuthenticationFailedException("ATHR-001", "User has not signed in");
+//            }
             final QuestionEntity userEntity = new QuestionEntity();
 
             userEntity.setUuid(user.getUuid());
@@ -106,16 +109,32 @@ public class QuestionController {
         }
     }
     @RequestMapping(method=RequestMethod.PUT,path="/question/edit/{id}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<QuestionResponse> editQuestionContent(@RequestHeader("authorization") final String authorization,@PathVariable("id") final String id) throws AuthorizationFailedException, InvalidQuestionException {
+    public ResponseEntity<QuestionResponse> editQuestionContent(@RequestHeader("authorization") final String authorization,@PathVariable("id") final Integer id) throws AuthorizationFailedException, InvalidQuestionException {
          logger.info("edit question api called");
             final QuestionEntity createdUserEntity = questionBusinessService.editQuestionContent(authorization,id);
-            QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Modified Successfully");
+            QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Deleted Successfully");
         if(userResponse!=null) {
             logger.info("Question Modified Sucessfully");
             return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
         }
         else {
             logger.error("Error occured while editing  the question");
+            QuestionResponse userRes=new QuestionResponse().status("Internal Server Error");
+            return new ResponseEntity<>(userResponse,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(method=RequestMethod.DELETE,path="/question/delete/{id}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionResponse> deleteQuestion (@RequestHeader("authorization") final String authorization,@PathVariable("id") final Integer id) throws AuthorizationFailedException, InvalidQuestionException {
+        logger.info("Delete question api called");
+        final QuestionEntity createdUserEntity = questionBusinessService.deleteQuestion(authorization,id);
+        QuestionResponse userResponse = new QuestionResponse().id(createdUserEntity.getUuid()).status("Question Modified Successfully");
+        if(userResponse!=null) {
+            logger.info("Question Deleted Sucessfully");
+            return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+        }
+        else {
+            logger.error("Error occured while Deleting  the question");
             QuestionResponse userRes=new QuestionResponse().status("Internal Server Error");
             return new ResponseEntity<>(userResponse,HttpStatus.BAD_REQUEST);
         }
