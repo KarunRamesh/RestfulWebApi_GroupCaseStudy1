@@ -4,6 +4,9 @@ package com.upgrad.quora.service.business;
  import com.upgrad.quora.service.entity.UserEntity;
  import com.upgrad.quora.service.exception.AuthenticationFailedException;
  import com.upgrad.quora.service.exception.AuthorizationFailedException;
+ import com.upgrad.quora.service.exception.SignOutRestrictedException;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
  import org.springframework.beans.factory.annotation.Autowired;
  import com.upgrad.quora.service.entity.UserAuthTokenEntity;
 import org.springframework.stereotype.Service;
@@ -19,8 +22,9 @@ public class UserBusinessService {
      private UserDao userDao;
      @Autowired
      private PasswordCryptographyProvider passwordCryptographyProvider;
- 
-     @Transactional(propagation = Propagation.REQUIRED)
+    Logger logger = LoggerFactory.getLogger(UserBusinessService.class);
+
+    @Transactional(propagation = Propagation.REQUIRED)
      public UserEntity signup(UserEntity userEntity) throws AuthenticationFailedException {
          String[] encryptedText = passwordCryptographyProvider.encrypt(userEntity.getPassword());
          userEntity.setSalt(encryptedText[0]);
@@ -71,9 +75,24 @@ public class UserBusinessService {
  
      public UserAuthTokenEntity authorize(final String authorizationToken) throws AuthorizationFailedException {
          UserAuthTokenEntity userTokenEntity = userDao.getUserAuthTokenEntityByToken(authorizationToken);
-        /*if (userTokenEntity == null) {
+
+         if (userTokenEntity == null) {
              throw new AuthorizationFailedException("ATHR001", "User has not signed in");
-         }*/
+         }
          return userTokenEntity;
-     } 
+     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserEntity logout(String authorization) throws SignOutRestrictedException {
+        UserAuthTokenEntity userTokenEntity = userDao.getUserAuthTokenEntityByToken(authorization);
+        if (userTokenEntity == null) {
+             throw new SignOutRestrictedException("ATHR001", "User has not signed in");
+         }
+        UserEntity user=userTokenEntity.getUser();
+        final ZonedDateTime expiresAt = ZonedDateTime.now();
+        userTokenEntity.setLogoutAt(expiresAt);
+        userTokenEntity.setExpiresAt(expiresAt);
+        UserAuthTokenEntity logoutUser= userDao.logout(userTokenEntity);
+        return logoutUser.getUser();
+    }
 }

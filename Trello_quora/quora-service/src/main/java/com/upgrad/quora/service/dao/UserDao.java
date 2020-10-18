@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.time.ZonedDateTime;
 
 @Repository
 public class UserDao {
@@ -51,4 +52,17 @@ public class UserDao {
      {
          entityManager.merge(updatedUserEntity);
      }
+
+
+
+    public UserAuthTokenEntity logout(UserAuthTokenEntity userAuthTokenEntity) {
+        try{
+           // return entityManager.createNamedQuery("userSignOut",UserAuthTokenEntity.class).setParameter("accessToken",accessToken).setParameter("expiresAt",expiresAt).getSingleResult();
+            entityManager.merge(userAuthTokenEntity);
+           return userAuthTokenEntity;
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
 }

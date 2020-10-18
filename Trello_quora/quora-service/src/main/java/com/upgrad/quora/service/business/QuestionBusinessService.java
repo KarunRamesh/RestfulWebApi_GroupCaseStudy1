@@ -57,7 +57,8 @@ public class QuestionBusinessService {
            ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
            ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
            ZonedDateTime currentTime = ZonedDateTime.now();
-            if ((logOutTime==null || expiryTime==null)||(!(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)))) {
+         //   if ((logOutTime==null || expiryTime==null)||(!(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)))) {
+               if(logOutTime!=null){
                 logger.info("inside signed condition passed");
                 QuestionEntity questionEntity = dao.getQuestionUser(uuid);
                 if (!Objects.isNull(questionEntity)) {

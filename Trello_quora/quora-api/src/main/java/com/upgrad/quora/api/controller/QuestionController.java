@@ -37,6 +37,7 @@ public class QuestionController {
     public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequestRequest) throws AuthenticationFailedException, AuthorizationFailedException {
             logger.info("create question api called");
            UserAuthTokenEntity userAuthToken=userBusinessService.authorize(authorization);
+           logger.info(userAuthToken.getExpiresAt()+" "+userAuthToken.getLogoutAt()+" "+userAuthToken.getUser());
            UserEntity user = userAuthToken.getUser();
           final ZonedDateTime now = ZonedDateTime.now();
 //            byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);

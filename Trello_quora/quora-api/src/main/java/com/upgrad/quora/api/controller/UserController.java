@@ -1,12 +1,14 @@
 package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.SigninResponse;
+import com.upgrad.quora.api.model.SignoutResponse;
 import com.upgrad.quora.api.model.SignupUserRequest;
 import com.upgrad.quora.api.model.SignupUserResponse;
 import com.upgrad.quora.service.business.UserBusinessService;
 import com.upgrad.quora.service.entity.UserAuthTokenEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
+import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,8 @@ public class UserController {
 
     @Autowired
     private UserBusinessService userBusinessService;
+
+
      @RequestMapping(method = RequestMethod.POST, path = "/user/signup", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
      public ResponseEntity<SignupUserResponse> userSignup(final SignupUserRequest signupUserRequest) throws AuthenticationFailedException {
  
@@ -64,5 +68,16 @@ public class UserController {
          HttpHeaders headers = new HttpHeaders();
          headers.add("accesstoken", userAuthToken.getAccessToken());
          return new ResponseEntity<SigninResponse>(authorizedUserResponse,headers, HttpStatus.OK);
-     } 
+     }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/user/signout",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> logout(@RequestHeader("authorization") final String authorization) throws SignOutRestrictedException, AuthenticationFailedException {
+
+        //Get access token from authorization header
+        final UserEntity createdUserEntity = userBusinessService.logout(authorization);
+        //Fill in Signout Response and return
+        SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("SIGNED OUT SUCCESSFULLY");
+        return new ResponseEntity<SignupUserResponse>(userResponse, HttpStatus.CREATED);
+    }
+
 }
