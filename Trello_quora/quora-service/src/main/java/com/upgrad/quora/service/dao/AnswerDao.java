@@ -1,5 +1,6 @@
 package com.upgrad.quora.service.dao;
 import com.upgrad.quora.service.entity.AnswerEntity;
+import com.upgrad.quora.service.entity.QuestionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 
 @Repository
 public class AnswerDao {
@@ -40,6 +42,14 @@ public class AnswerDao {
             return true;
         }catch (NoResultException nre){
             return false;
+        }
+    }
+
+    public List<AnswerEntity> getAnswerByQuestionId(Integer questionId) {
+        try {
+            return entityManager.createNamedQuery("getAnswerByQuestionId", AnswerEntity.class).setParameter("questionId", questionId).getResultList();
+        } catch (NoResultException nre) {
+            return null;
         }
     }
 }

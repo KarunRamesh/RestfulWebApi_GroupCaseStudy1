@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -32,8 +33,8 @@ public class AnswerBusinessService {
             ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
             ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
             ZonedDateTime currentTime = ZonedDateTime.now();
-            //   if ((logOutTime==null || expiryTime==null)||(!(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)))) {
-            if(logOutTime!=null){
+               if ((logOutTime==null || expiryTime==null)||(!(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)))) {
+           // if(logOutTime!=null){
                 logger.info("inside signed condition passed");
                 AnswerEntity answerEntity = answerDao.getAnswerUser(id);
                 if (!Objects.isNull(answerEntity)) {
@@ -92,5 +93,35 @@ public class AnswerBusinessService {
                 throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
             }
         }
+    }
+
+    public List<AnswerEntity> getAllAnswersToQuestion(String authorization, Integer questionId) throws AuthorizationFailedException, InvalidQuestionException {
+        logger.info("editQuestionContent method in QuestionBusinessService called");
+
+        UserAuthTokenEntity userAuthTokenEntity = userBusinessService.authorize(authorization);
+        if(userAuthTokenEntity==null){
+            logger.error("Exception occured in editQuestionContent method"+"user has not signed in");
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }else {
+            logger.info("else called");
+            ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
+            ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
+            ZonedDateTime currentTime = ZonedDateTime.now();
+              if ((logOutTime==null || expiryTime==null)||(!(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)))) {
+                logger.info("inside signed condition passed");
+                List<AnswerEntity> answerEntity = answerDao.getAnswerByQuestionId(questionId);
+                if (!Objects.isNull(answerEntity)) {
+                    return  answerEntity;
+                } else {
+                    logger.info("Exception occured in QuestionBusinessService class"+"Entered question uuid does not exist");
+                    throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist'.");
+                }
+            } else {
+                logger.info("Exception occured in QuestionBusinessService class"+"User is signed out.Sign in first to get user details");
+
+                throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
+            }
+        }
+
     }
 }

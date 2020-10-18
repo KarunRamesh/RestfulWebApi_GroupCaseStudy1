@@ -14,7 +14,8 @@ import java.time.ZonedDateTime;
 @NamedQueries(
         {
                 @NamedQuery(name = "getAnswerById", query = "select ans from AnswerEntity ans where ans.id=:id"),
-                @NamedQuery(name = "deleteAnswer", query = "delete from AnswerEntity  ans where ans.id=:id")
+                @NamedQuery(name = "deleteAnswer", query = "delete from AnswerEntity  ans where ans.id=:id"),
+                @NamedQuery(name="getAnswerByQuestionId",query="select ans from AnswerEntity ans where ans.questionId.id=:questionId")
         }
 )
 public class AnswerEntity implements Serializable {
@@ -22,21 +23,17 @@ public class AnswerEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="ID",length=30)
     private Integer id;
-    @Column(name="UUID",length=40)
+    @Column(name="uuid",length=40)
     private String uuid;
     @Column(name="ANS",length=2000)
     private String ans;
 
-    @Column(name = "EXPIRES_AT")
-    @NotNull
-    private ZonedDateTime  date;
-
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @ManyToOne
-    @JoinColumn(name = "QUESTION_ID")
+    @JoinColumn(name = "question_id")
     private  QuestionEntity questionId;
 
     public Integer getId() {
@@ -61,14 +58,6 @@ public class AnswerEntity implements Serializable {
 
     public void setAns(String ans) {
         this.ans = ans;
-    }
-
-    public ZonedDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(ZonedDateTime date) {
-        this.date = date;
     }
 
     public UserEntity getUser() {
