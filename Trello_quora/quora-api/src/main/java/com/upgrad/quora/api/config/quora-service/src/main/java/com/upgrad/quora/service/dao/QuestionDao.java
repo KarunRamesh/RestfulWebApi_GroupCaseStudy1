@@ -49,6 +49,14 @@ public class QuestionDao {
 
     }
 
+    public QuestionEntity getQuestionsBasedOnId(String questionId) {
+        try {
+            return entityManager.createNamedQuery("getQuestionBasedOnId", QuestionEntity.class).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
     public QuestionEntity getQuestionUser(Integer id) {
         try {
             return entityManager.createNamedQuery("questionUserByUuid",

@@ -4,6 +4,7 @@ import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthTokenEntity;
+import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -20,6 +22,10 @@ public class AnswerBusinessService {
     private AnswerDao answerDao;
     @Autowired
     private UserBusinessService userBusinessService;
+    @Autowired
+    private QuestionBusinessService questionBusinessService;
+
+
     Logger logger = LoggerFactory.getLogger(AnswerBusinessService.class);
 
     public AnswerEntity editAnswerContent(String autherization, Integer id) throws AuthorizationFailedException, InvalidQuestionException {
@@ -93,4 +99,52 @@ public class AnswerBusinessService {
             }
         }
     }
+
+    public AnswerEntity createAnswer(String autherization, String questionId, String answerContent) throws AuthorizationFailedException, InvalidQuestionException {
+        logger.info("createAnswer method in AnswerBusinessService called");
+        final AnswerEntity answerEntity = new AnswerEntity();
+        final ZonedDateTime now = ZonedDateTime.now();
+        AnswerEntity createdAnswerEntity = new AnswerEntity();
+        //Find out if th questionId does exist in the database then create the answer for the question otherwise raise exception
+        QuestionEntity questionEntity = questionBusinessService.CheckQuestionIdIsValid(questionId);
+        if (questionEntity == null) {
+            logger.error("Exception occured in CreateAnswer method");
+        } else {
+            //Obtain User data based on authorization token
+            UserAuthTokenEntity userAuthToken = userBusinessService.authorize(autherization);
+            if (userAuthToken == null) {
+                logger.error("Exception occured in authorize method");
+            } else {
+                //Get User Details based on the authorization token and then set User entity
+                UserEntity user = userAuthToken.getUser();
+
+                //Prepare AnswerEntity to facilitate Answer creation for the question
+                answerEntity.setUuid(user.getUuid());
+                answerEntity.setUser(user);
+                answerEntity.setQuestionId(questionEntity);
+                answerEntity.setDate(now);
+
+                //create Answer for the Question now
+                createdAnswerEntity = answerDao.createAnswer(answerEntity);
+            }
+        }
+        return createdAnswerEntity;
+    }
+
+    public String getAllAnswers(UserAuthTokenEntity userAuthTokenEntity, String questionId) throws AuthorizationFailedException {
+        String lstOfAllAnswers;
+        ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
+        ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
+        ZonedDateTime currentTime = ZonedDateTime.now();
+        if (logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)) {
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions");
+        }
+        List<AnswerEntity> answerList = answerDao.getAllAnswersForQuestion(questionId);
+        lstOfAllAnswers = answerList.get(0).getAns() + "\n";
+        for (int idx = 1; idx < answerList.size(); idx++) {
+            lstOfAllAnswers = lstOfAllAnswers + answerList.get(idx).getAns() + "\n";
+        }
+        return lstOfAllAnswers;
+    }
+
 }

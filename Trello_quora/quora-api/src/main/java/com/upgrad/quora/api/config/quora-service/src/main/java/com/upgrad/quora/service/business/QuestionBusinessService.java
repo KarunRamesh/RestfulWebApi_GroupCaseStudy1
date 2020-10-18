@@ -90,6 +90,17 @@ public class QuestionBusinessService {
         }
         return dao.getAllQuestionsByUser(userId);
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity CheckQuestionIdIsValid(String questionId) throws InvalidQuestionException {
+        logger.info("CheckQuestionIdIsValid method in QuestionBusinessService called");
+        QuestionEntity questionEntity = dao.getQuestionsBasedOnId(questionId);
+        if(questionEntity == null) {
+            throw new InvalidQuestionException("QUES-001", "The question entered is invalid");
+        }
+        return questionEntity;
+    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity deleteQuestion(String authorization, Integer id) throws AuthorizationFailedException, InvalidQuestionException {
 
