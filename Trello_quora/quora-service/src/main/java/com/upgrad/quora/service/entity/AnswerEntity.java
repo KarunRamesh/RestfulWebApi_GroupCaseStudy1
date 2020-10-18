@@ -11,6 +11,12 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name="ANSWER",schema ="quora")
+@NamedQueries(
+        {
+                @NamedQuery(name = "getAnswerById", query = "select ans from AnswerEntity ans where ans.id=:id"),
+                @NamedQuery(name = "deleteAnswer", query = "delete from AnswerEntity  ans where ans.id=:id")
+        }
+)
 public class AnswerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
