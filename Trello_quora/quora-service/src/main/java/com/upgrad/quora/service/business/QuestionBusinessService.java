@@ -36,12 +36,6 @@ public class QuestionBusinessService {
     }
 
     public List<QuestionEntity> getAllQuestions(UserAuthTokenEntity userAuthTokenEntity) throws AuthorizationFailedException {
-        ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
-        ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
-        ZonedDateTime currentTime = ZonedDateTime.now();
-        if (logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)) {
-            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions");
-        }
         return dao.getAllQuestions();
     }
     @Transactional(propagation = Propagation.REQUIRED)
@@ -85,9 +79,9 @@ public class QuestionBusinessService {
         ZonedDateTime logOutTime = userAuthTokenEntity.getLogoutAt();
         ZonedDateTime expiryTime = userAuthTokenEntity.getExpiresAt();
         ZonedDateTime currentTime = ZonedDateTime.now();
-        if(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)){
-            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions");
-        }
+//        if(logOutTime.isBefore(currentTime) || expiryTime.isBefore(currentTime)){
+//            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions");
+//        }
         return dao.getAllQuestionsByUser(userId);
     }
     @Transactional(propagation = Propagation.REQUIRED)

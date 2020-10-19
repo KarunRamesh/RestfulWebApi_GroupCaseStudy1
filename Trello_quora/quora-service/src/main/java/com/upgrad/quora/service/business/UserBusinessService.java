@@ -79,6 +79,7 @@ public class UserBusinessService {
          if (userTokenEntity == null) {
              throw new AuthorizationFailedException("ATHR001", "User has not signed in");
          }
+
          return userTokenEntity;
      }
 
