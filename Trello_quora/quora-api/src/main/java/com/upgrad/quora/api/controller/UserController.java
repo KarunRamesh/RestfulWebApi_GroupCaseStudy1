@@ -40,7 +40,7 @@ public class UserController {
          userEntity.setDob(signupUserRequest.getDob());
          userEntity.setAboutMe(signupUserRequest.getAboutMe());
          userEntity.setContactNumber(signupUserRequest.getContactNumber());
-         userEntity.setRole("admin");
+         userEntity.setRole("nonadmin");
          userEntity.setUserName(signupUserRequest.getUserName());
          final UserEntity createdUserEntity = userBusinessService.signup(userEntity);
          SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");

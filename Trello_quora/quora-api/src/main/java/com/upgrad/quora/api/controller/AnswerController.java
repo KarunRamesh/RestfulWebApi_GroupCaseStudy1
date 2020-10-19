@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -27,9 +28,29 @@ import java.util.List;
 public class AnswerController {
     @Autowired
     private AnswerBusinessService answerBusinessService;
+    @Autowired
+    private UserBusinessService userBusinessService;
+
     @RequestMapping(method = RequestMethod.POST, path = "/question/{questionId}/answer/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SignupUserResponse> createAnswer(@PathVariable("questionId") final String questionId, final AnswerRequest answerRequest) throws AuthenticationFailedException {
-        return new ResponseEntity<>(null,HttpStatus.OK);
+    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable("questionId") final Integer questionId,@RequestHeader("autherization")String autherization,final AnswerRequest answerRequest) throws AuthenticationFailedException, AuthorizationFailedException, InvalidQuestionException {
+
+        UserAuthTokenEntity userAuthToken=userBusinessService.authorize(autherization);
+        UserEntity user = userAuthToken.getUser();
+        final ZonedDateTime now = ZonedDateTime.now();
+        final AnswerEntity userEntity = new AnswerEntity();
+        userEntity.setUuid(user.getUuid());
+        userEntity.setUser(user);
+        userEntity.setAns(answerRequest.getAnswer());
+        final AnswerEntity createdUserEntity = answerBusinessService.createAnswer(userEntity,questionId);
+        AnswerResponse userResponse = new AnswerResponse().id(createdUserEntity.getUuid()).status("ANSWER Created");
+        if(userResponse!=null) {
+            return new ResponseEntity<AnswerResponse>(userResponse, HttpStatus.CREATED);
+        }
+        else {
+            QuestionResponse userRes=new QuestionResponse().status("Internal Server Error");
+            return new ResponseEntity<>(userResponse,HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     @RequestMapping(method=RequestMethod.PUT,path="/answer/edit/{id}",produces=MediaType.APPLICATION_JSON_UTF8_VALUE)

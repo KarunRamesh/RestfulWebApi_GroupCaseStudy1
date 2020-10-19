@@ -3,6 +3,7 @@ import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -34,10 +35,10 @@ public class AnswerDao {
             throw e;
         }
     }
-
+    @Modifying
     public boolean deleteAnswer(Integer id) {
         try{
-            entityManager.createNamedQuery("deleteAnswer",AnswerEntity.class).getSingleResult();
+            entityManager.createNamedQuery("deleteAnswer").setParameter("id",id).executeUpdate();
             entityManager.flush();
             return true;
         }catch (NoResultException nre){
@@ -50,6 +51,15 @@ public class AnswerDao {
             return entityManager.createNamedQuery("getAnswerByQuestionId", AnswerEntity.class).setParameter("questionId", questionId).getResultList();
         } catch (NoResultException nre) {
             return null;
+        }
+    }
+
+    public AnswerEntity createAnswer(AnswerEntity userEntity) {
+        try{
+                 entityManager.persist(userEntity);
+                 return userEntity;
+        }catch(NoResultException nre){
+            return  null;
         }
     }
 }

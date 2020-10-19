@@ -14,8 +14,9 @@ import java.time.ZonedDateTime;
 @NamedQueries(
         {
                 @NamedQuery(name = "getAnswerById", query = "select ans from AnswerEntity ans where ans.id=:id"),
-                @NamedQuery(name = "deleteAnswer", query = "delete from AnswerEntity  ans where ans.id=:id"),
+                @NamedQuery(name = "deleteAnswer", query = "delete from AnswerEntity  answer where answer.id=:id"),
                 @NamedQuery(name="getAnswerByQuestionId",query="select ans from AnswerEntity ans where ans.questionId.id=:questionId")
+
         }
 )
 public class AnswerEntity implements Serializable {
@@ -35,6 +36,18 @@ public class AnswerEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "question_id")
     private  QuestionEntity questionId;
+
+    public ZonedDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
+    }
+
+    @Column(name = "DATE")
+    @NotNull
+    private ZonedDateTime date;
 
     public Integer getId() {
         return id;
